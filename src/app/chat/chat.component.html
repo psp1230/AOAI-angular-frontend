@@ -1,0 +1,224 @@
+<div class="container-fluid h-100">
+  <div class="row hv-100">
+    <div class="col-3 left-column p-3 d-none d-lg-block d-md-block d-print-none">
+
+    </div>
+    <div class="col right-column" (click)="onModelSettingsClose()">
+      @if (configuration.deployments.length > 0) {
+      <div class="model-settings-menu d-print-none">
+        <button class="btn btn-sm" (click)="onModelSettings($event)" [attr.disabled]="loading ? true : null">
+          Azure OpenAI Model <fa-icon [icon]="iconDropdown"></fa-icon>
+        </button>
+      </div>
+      }
+
+      @if (displaySettingsModel === true) {
+      <div class="model-settings p-3 d-print-none">
+        @for(deployment of configuration.deployments; track deployment.name; let i = $index) {
+        <button class="btn btn-sm mb-2" (click)="onDeploymentChange($event, deployment)">
+          <div [innerHTML]="deployment.description"></div>
+
+          @if (deployment.name === configuration.deployment){
+          <fa-icon [icon]="iconCheckmark"></fa-icon>
+          }
+        </button>
+        }
+      </div>
+      }
+
+      @if (title && title.length > 0)
+      {
+      <h1 class="pb-4 pt-4 ps-3 title fade-in">
+        {{title}}
+
+        <button class="btn btn-secondary btn-sm d-print-none button-settings" (click)="onSettings()">
+          <fa-icon [icon]="iconSettings"></fa-icon>
+        </button>
+      </h1>
+      }
+
+      @if (displaySettings === true) {
+      <div class="conversation-settings p-3 d-print-none">
+        <div>
+          <div class="mb-3">
+            <label>Title</label>
+            <input type="text" class="form-control" [(ngModel)]="titleTemporary">
+          </div>
+          <div>
+            <button class="btn btn-sm btn-outline-secondary me-1" (click)="onSettingsCancel()">Cancel</button>
+            <button class="btn btn-sm btn-secondary" (click)="onSettingsSave()">Save</button>
+          </div>
+        </div>
+      </div>
+      }
+
+      <div class="d-flex flex-column vh-100">
+        <div class="flex-grow-1 p-3">
+          <markdown emoji [data]="messages"></markdown>
+
+          @if (messages.length === 0 && prompt.length === 0)
+          {
+          <div class="mt-5">
+            <h4 class="mb-0"> Azure OpenAI + Angular 18 實作 串流（Streaming）文字回應 </h4>
+
+            <p class="small">
+              資料來源:
+              <a href="https://github.com/romayneeastmond/azure-openai-angular" target="_blank">Angular 18</a>
+              和
+              <a href="https://github.com/romayneeastmond/azure-python-serverless-functions" target="_blank">Azure
+                Python Serverless Functions Backend</a>
+            </p>
+
+            <h6 class="mt-4 mb-4">範例Prompt</h6>
+
+            <div class="example-prompts row">
+              @for (example of examplePrompts; track example.prompt)
+              {
+              <div class="col-lg-4 col-md-12 col-sm-12 col-xs-12 mb-4 position-relative" style="min-height: 150px;">
+                <fa-icon [icon]="example.icon" [style]="'color: ' + example.colour"></fa-icon>
+                <button class="btn p-3 d-flex"
+                  (click)="onPromptCreate(example.prompt, example.flow)">{{example.prompt}}</button>
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+        <div class="position-relative textarea-wrapper p-3">
+          @if (!loading)
+          {
+          <div class="down-arrow-position d-print-none" [ngClass]="{'hidden': displayToBottom === false}">
+            <button class="btn btn-link" (click)="scrollToBottom()">
+              <fa-icon [icon]="iconDown"></fa-icon>
+            </button>
+          </div>
+          }
+
+          @if (stopGeneration)
+          {
+          <div class="down-arrow-position d-print-none">
+            <button class="btn btn-danger" (click)="onCancelGeneration()">
+              <fa-icon [icon]="iconStop"></fa-icon>
+            </button>
+          </div>
+          }
+
+          @if (selectedFiles && selectedFiles.length > 0)
+          {
+          <div class="documents-wrapper">
+            @for(file of selectedFiles; track file.name; let i = $index)
+            {
+            <div>
+              {{file.name}}
+              <span><fa-icon (click)="onDocumentDelete(i)" [icon]="iconDelete"></fa-icon></span>
+            </div>
+            }
+          </div>
+          }
+
+          @if (displayPromptFlow === true )
+          {
+          <div class="documents-wrapper d-print-none">
+            <div class="flow">
+              {{promptFlow}}
+              <span (click)="onPromptCancel()"><fa-icon [icon]="iconClose"></fa-icon> 取消 Prompt</span>
+            </div>
+          </div>
+          }
+
+          @if (getAdvancedOptions() && (!selectedFiles || (selectedFiles && selectedFiles.length === 0)))
+          {
+          <div class="documents-wrapper d-print-none">
+            <div class="flow">
+              加入文件進行搜索回答優化
+              <span (click)="onSettingsAdvanced()"><fa-icon [icon]="iconSettings"></fa-icon> 顯示進階選項</span>
+            </div>
+          </div>
+          }
+
+          <textarea #textareaChat class="form-control textarea mb-4 p-3 d-print-none" rows="10"
+            placeholder="Message Azure OpenAI" [(ngModel)]="prompt" (keyup.enter)="onSend()"
+            [attr.disabled]="loading ? true : null" autofocus></textarea>
+          <input #fileUpload class="hidden" type="file" multiple accept=".pdf,.docx,.doc,.txt,.md,.markdown"
+            (change)="onDocumentsChange($event)">
+          <button class="btn btn-secondary btn-sm mb-5 d-print-none document-button" (click)="onDocumentsClick($event)"
+            [attr.disabled]="loading ? true : null"><fa-icon [icon]="iconDocument"></fa-icon></button>
+          <button class="btn btn-secondary btn-sm mb-5 d-print-none send-button" (click)="onSend()"
+            [attr.disabled]="loading ? true : null">送出</button>
+
+          <div class="small d-print-none footer">
+            此回應由AI生成，可能包含錯誤。請謹慎參考資訊。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="btn btn-sm btn-secondary d-print-none toggle-theme" (click)="onToggleTheme()">
+  <fa-icon [icon]="iconMoon"></fa-icon>
+</button>
+
+<button class="btn btn-sm btn-secondary d-print-none toggle-theme button-delete-messages" (click)="onDeleteMessages()"
+  [attr.disabled]="loading ? true : null">
+  <fa-icon [icon]="iconDelete"></fa-icon>
+</button>
+
+@if (this.messages.length > 0 && this.title.length > 0) {
+<button class="btn btn-sm btn-secondary d-print-none toggle-theme button-export-conversation"
+  (click)="onExportConversation()" [attr.disabled]="loading ? true : null">
+  <fa-icon [icon]="iconWord"></fa-icon>
+</button>
+}
+
+<div class="left-column-panel d-print-none">
+  &nbsp;
+</div>
+
+<dialog class="box-shadow d-print-none" #advancedOptionsDialog>
+  <div class="container h-100">
+    <div class="row h-100">
+      <div class="col position-relative h-100 scrollable">
+        <h6 class="mb-3 mt-2 small">進階選項</h6>
+
+        <p class="small">
+          請選擇要用於生成回應的頁碼，以優化對話上下文。
+          每份文件若選取過多頁面，可能會超出 Token 限制。
+          請依實際需要調整，確保回應內容更完整。
+        </p>
+
+        @for (document of getAdvancedMessageDocuments(); track messagesDocuments; let i = $index) {
+        <div class="mb-3 small">
+          <label>{{document.filename}}</label>
+          <div class="small mb-3">{{document.statistics}}. Select pages below.</div>
+          <input type="text" class="form-control" placeholder="e.g. 1-5, 8, 11-13" [(ngModel)]="document.filter">
+        </div>
+        }
+
+        <div class="close">
+          <button class="btn btn-sm btn-secondary" (click)="onSettingsAdvancedSave()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="box-shadow smaller d-print-none" #saveOutputDialog>
+  <div class="container h-100">
+    <div class="row h-100">
+      <div class="col position-relative h-100 scrollable">
+        <h6 class="mb-3 mt-2 small">將回答另存為</h6>
+
+        <div class="mb-3 small">
+          <label>檔案名稱和副檔名</label>
+          <div class="small mb-3">自動從 markdown 推斷擴展。</div>
+          <input type="text" class="form-control" placeholder="filename.extension" [(ngModel)]="outputFilename">
+        </div>
+
+        <div class="close">
+          <button class="btn btn-sm btn-secondary" (click)="onOutputFilenameSave()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>

@@ -1,0 +1,101 @@
+body {
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #fff;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(244, 244, 244, 0.5);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(244, 244, 244, 1);
+    }
+
+    &.dialog-opened {
+        padding-right: 10px;
+        overflow: hidden;
+
+        .send-button {
+            right: 55px;
+        }
+
+        .textarea,
+        .footer {
+            width: calc(100% - 303px);
+        }
+
+        @media (max-width: 767px) {
+            .textarea,
+            .footer {
+                width: calc(100% - 65px);
+            }
+        }
+    }
+}
+
+a {
+    color: #8fbaf9;
+
+    &:hover {
+        color: #b2bfd3;
+    }
+}
+
+.alert {
+    background-color: rgb(251 251 251 / 5%);
+    border-radius: 1.5rem;
+}
+
+.alert-danger {
+    color: #e83e8c !important;
+}
+
+.hidden {
+    display: none;
+}
+
+.hv-100 {
+    height: 100vh !important;
+}
+
+@mixin darkMode() {
+    body {
+        background-color: #212121;
+        color: #fff;
+
+        &::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #171717;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba(108, 117, 125, 0.5);
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: rgb(108, 117, 125);
+        }
+    }
+
+    .alert {
+        color: #fff;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    @include darkMode();
+}
+
+html.dark-mode {
+    @include darkMode();
+}
