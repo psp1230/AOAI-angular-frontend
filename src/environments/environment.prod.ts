@@ -6,7 +6,7 @@ export const environment = {
     deployment: 'gpt-4o',
     deployments: [{
         name: 'gpt-4o',
-        description: 'GPT-4 <div class="small">適合大多數任務</div>',
+        description: 'GPT-4o <div class="small">適合大多數任務</div>',
         threshold: 10000
     }],
     document_serverless_endpoint: '',
